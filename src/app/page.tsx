@@ -71,7 +71,7 @@ function Splash({ onDone }: { onDone: () => void }) {
             exit={{ opacity: 0, scale: 0.97 }}
             transition={{ duration: 1, ease: EX }}
           >
-            <Image src={`/banners/${banners[idx]}`} alt="" fill className="object-cover" priority />
+            <Image src={`/banners/${banners[idx]}`} alt="" fill className="object-contain" priority />
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(10,15,13,0.3), rgba(10,15,13,0.7))' }} />
           </motion.div>
         )}
