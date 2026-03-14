@@ -1,0 +1,741 @@
+'use client'
+
+import { useEffect, useState, useRef, useCallback } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
+import {
+  FiArrowRight, FiArrowDown, FiPlay, FiPause, FiArrowLeft
+} from 'react-icons/fi'
+import {
+  PiTreePalm, PiMusicNoteFill, PiLeafFill, PiStarFill
+} from 'react-icons/pi'
+import { RiMapPin2Line } from 'react-icons/ri'
+
+/* ── UTILS ───────────────────────────────────────────────── */
+async function getFiles(folder: string): Promise<string[]> {
+  try {
+    const r = await fetch(`/api/files?folder=${folder}`)
+    const d = await r.json()
+    return d.files ?? []
+  } catch { return [] }
+}
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = arr.slice()
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+const IMG = /\.(png|jpg|jpeg|webp)$/i
+const VID = /\.(mp4|mov|webm)$/i
+const EX  = [0.19, 1, 0.22, 1] as const
+
+/* ════════════════════════════════════════════════════════════
+   SPLASH - fullscreen cinematic entrance
+════════════════════════════════════════════════════════════ */
+function Splash({ onDone }: { onDone: () => void }) {
+  const [banners, setBanners] = useState<string[]>([])
+  const [idx, setIdx]         = useState(0)
+  const [exit, setExit]       = useState(false)
+
+  useEffect(() => {
+    getFiles('banners').then(f => setBanners(f.filter(x => IMG.test(x))))
+  }, [])
+
+  useEffect(() => {
+    if (!banners.length) { const t = setTimeout(onDone, 600); return () => clearTimeout(t) }
+    if (idx < banners.length - 1) {
+      const t = setTimeout(() => setIdx(i => i + 1), 2200)
+      return () => clearTimeout(t)
+    } else {
+      const t = setTimeout(() => { setExit(true); setTimeout(onDone, 1000) }, 2200)
+      return () => clearTimeout(t)
+    }
+  }, [idx, banners, onDone])
+
+  return (
+    <motion.div
+      className="splash"
+      animate={{ opacity: exit ? 0 : 1 }}
+      transition={{ duration: 1, ease: EX }}
+    >
+      <AnimatePresence mode="wait">
+        {banners[idx] && (
+          <motion.div key={banners[idx]} className="absolute inset-0"
+            initial={{ opacity: 0, scale: 1.06 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.97 }}
+            transition={{ duration: 1, ease: EX }}
+          >
+            <Image src={`/banners/${banners[idx]}`} alt="" fill className="object-cover" priority />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(10,15,13,0.3), rgba(10,15,13,0.7))' }} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Centered logo with glow */}
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center z-10"
+        initial={{ opacity: 0, scale: 0.88, y: 24 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 1.2, ease: EX, delay: 0.3 }}
+      >
+        <div className="relative glow-fire"
+          style={{ width: 'clamp(260px,36vw,480px)', height: 'clamp(200px,28vw,360px)' }}>
+          <Image src="/banners/Groove-Garden-PNG-shadow.png" alt="Groove Garden" fill className="object-contain" priority />
+        </div>
+      </motion.div>
+
+      {/* Progress lines */}
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+        {banners.map((_, i) => (
+          <motion.div key={i} className="h-[2px] overflow-hidden rounded-full"
+            animate={{ width: i === idx ? 52 : 16 }}
+            transition={{ duration: 0.4, ease: EX }}
+            style={{ background: 'rgba(240,235,224,0.15)' }}
+          >
+            {i === idx && (
+              <motion.div className="h-full" style={{ background: 'var(--fire-bright)' }}
+                initial={{ scaleX: 0, originX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 2.2, ease: 'linear' }}
+              />
+            )}
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Ambient bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 z-20"
+        style={{ background: 'linear-gradient(90deg, transparent, var(--fire), var(--fire-hot), var(--fire), transparent)' }} />
+    </motion.div>
+  )
+}
+
+/* ════════════════════════════════════════════════════════════
+   HERO - massive editorial type, no compromise
+════════════════════════════════════════════════════════════ */
+function Hero() {
+  const ref = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const py   = useTransform(scrollYProgress, [0,1], ['0%', '30%'])
+  // Fade only after stats row is fully visible (e.g., after 0.8 scroll progress)
+  const fade = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+
+  return (
+    <section ref={ref} className="relative min-h-[100svh] flex items-end overflow-hidden bg-lines"
+      style={{
+        paddingTop: '80px',
+        background: 'linear-gradient(160deg, #0d2b18 0%, #0a0f0d 40%, #1a0d06 100%)',
+        paddingBottom: 'clamp(7rem,12vw,12rem)', // Increased bottom padding to ensure stats row is fully visible
+      }}
+    >
+      {/* Ambient radial glows */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: [
+          'radial-gradient(ellipse 70% 60% at 15% 40%, rgba(13,59,26,0.55) 0%, transparent 65%)',
+          'radial-gradient(ellipse 50% 50% at 85% 60%, rgba(232,93,4,0.12) 0%, transparent 60%)',
+          'radial-gradient(ellipse 60% 40% at 50% 100%, rgba(45,106,79,0.18) 0%, transparent 60%)',
+        ].join(','),
+      }} />
+
+      {/* Dot grid texture */}
+      <div className="absolute inset-0 pointer-events-none bg-dots" style={{ opacity: 0.5 }} />
+
+      {/* Vertical fire line left */}
+      <div className="absolute left-[clamp(1.5rem,6vw,7rem)] top-0 bottom-0 w-[1px] pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, transparent 10%, rgba(232,93,4,0.35) 40%, rgba(232,93,4,0.6) 60%, transparent 90%)' }} />
+
+      {/* Parallax content */}
+      <motion.div style={{ y: py, opacity: fade }} className="relative z-10 w-full pb-[clamp(4rem,8vw,8rem)]">
+        <div className="wrap">
+
+          {/* Eyebrow */}
+          <motion.div
+            initial={{ opacity:0, x:-20 }}
+            animate={{ opacity:1, x:0 }}
+            transition={{ duration:0.9, ease:EX, delay:0.15 }}
+            className="eyebrow"
+            style={{ marginBottom:'3rem' }}
+          >
+            <RiMapPin2Line size={11}/>
+            FUOYE, Oye-Ekiti · Ekiti State
+          </motion.div>
+
+          {/* GROOVE */}
+          <div className="overflow-hidden" style={{ marginBottom: '-0.05em' }}>
+            <motion.h1 className="t-hero"
+              initial={{ y: '105%' }}
+              animate={{ y: 0 }}
+              transition={{ duration: 1.1, ease: EX, delay: 0.2 }}
+            >
+              GROOVE
+            </motion.h1>
+          </div>
+
+          {/* GARDEN - italic, fire-colored, bleeds right */}
+          <div className="overflow-hidden" style={{ marginBottom: '3.5rem' }}>
+            <motion.h1 className="t-hero-italic t-fire"
+              initial={{ y: '105%' }}
+              animate={{ y: 0 }}
+              transition={{ duration: 1.1, ease: EX, delay: 0.32 }}
+              style={{ paddingLeft: 'clamp(1.5rem, 8vw, 10rem)' }}
+            >
+              Garden
+            </motion.h1>
+          </div>
+
+          {/* Bottom row: description + CTAs */}
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-10">
+            <motion.div
+              initial={{ opacity:0, y:20 }}
+              animate={{ opacity:1, y:0 }}
+              transition={{ duration:0.9, ease:EX, delay:0.55 }}
+              style={{ maxWidth: '400px' }}
+            >
+              <div className="div-fire" style={{ marginBottom:'1.5rem' }} />
+              <p className="t-body" style={{ fontSize: 'clamp(0.95rem,1.3vw,1.1rem)' }}>
+                Every Monday, Oye-Ekiti&apos;s finest converge.<br/>
+                Dance floor open. Vibes at maximum.<br/>
+                Groove till the sun clocks in.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity:0, y:20 }}
+              animate={{ opacity:1, y:0 }}
+              transition={{ duration:0.9, ease:EX, delay:0.7 }}
+              className="flex flex-col sm:flex-row gap-4 flex-shrink-0"
+            >
+              <Link href="/past-events" className="btn btn-fire">
+                <span>Explore Events</span><FiArrowRight size={13}/>
+              </Link>
+              <Link href="/contact" className="btn btn-outline">
+                Book a Table
+              </Link>
+            </motion.div>
+          </div>
+
+          {/* Stats row */}
+          <motion.div
+            initial={{ opacity:0, y:24 }}
+            animate={{ opacity:1, y:0 }}
+            transition={{ duration:0.9, ease:EX, delay:0.9 }}
+            className="flex flex-wrap gap-12 mb-16 pt-12"
+            style={{ borderTop: '1px solid rgba(240,235,224,0.07)' }}
+          >
+            {[
+              { num:'100+', label:'Events Hosted' },
+              { num:'1K+',  label:'Grooves Attended' },
+              { num:'Every', label:'Monday Night' },
+              { num:'∞',    label:'Memories Made' },
+            ].map(({ num, label }) => (
+              <div key={label}>
+                <p className="stat-num">{num}</p>
+                <p style={{ fontFamily:'var(--f-mono)', fontSize:'0.57rem', letterSpacing:'0.2em', color:'var(--cream-40)', marginTop:'6px' }}>
+                  {label.toUpperCase()}
+                </p>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Scroll cue */}
+      <motion.div
+        initial={{ opacity:0 }}
+        animate={{ opacity:1 }}
+        transition={{ delay:1.5, duration:1 }}
+        className="absolute right-[clamp(1.5rem,6vw,7rem)] bottom-12 flex flex-col items-center gap-3 z-10"
+      >
+        <motion.div animate={{ y:[0,10,0] }} transition={{ repeat:Infinity, duration:1.8, ease:'easeInOut' }}
+          style={{ color:'var(--fire)' }}>
+          <FiArrowDown size={18}/>
+        </motion.div>
+        <p style={{ fontFamily:'var(--f-mono)', fontSize:'0.52rem', letterSpacing:'0.25em', color:'var(--cream-40)', writingMode:'vertical-rl', textTransform:'uppercase' }}>
+          Scroll to explore
+        </p>
+      </motion.div>
+
+      {/* Bottom fire line */}
+      <div className="absolute bottom-0 left-0 right-0 h-[2px]"
+        style={{ background:'linear-gradient(90deg, transparent, var(--fire-hot), var(--fire), transparent)' }} />
+    </section>
+  )
+}
+
+/* ════════════════════════════════════════════════════════════
+   MARQUEE
+════════════════════════════════════════════════════════════ */
+function Marquee() {
+  const items = ['GROOVE TILL SUNRISE','NO MONDAY WITHOUT GROOVE','OYE-EKITI','FEEL THE MUSIC','DANCE ALL NIGHT','GROOVE GARDEN','EVERY MONDAY']
+  const all   = [...items,...items]
+  return (
+    <div className="relative overflow-hidden py-[18px] -mt-6"
+      style={{ background:'var(--fire)', borderTop:'1px solid rgba(255,255,255,0.1)' }}>
+      <div className="mq-track">
+        {all.map((t,i) => (
+          <span key={i} className="flex items-center gap-5 pr-10"
+            style={{ fontFamily:'var(--f-sans)', fontWeight:700, fontSize:'0.7rem', letterSpacing:'0.22em', color:'var(--bg-base)', whiteSpace:'nowrap' }}>
+            {t} <PiMusicNoteFill size={10} style={{ opacity:0.45, flexShrink:0 }}/>
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ════════════════════════════════════════════════════════════
+   EVENTS SECTION - Styled photo gallery with frames
+════════════════════════════════════════════════════════════ */
+
+// Frame configs for visual variety
+const FRAME_CONFIGS = [
+  // [frameClass, tiltClass, aspectRatio, colSpan, rowSpan]
+  { frame:'photo-luxury',   tilt:'',          aspect:'65%',  col:'md:col-span-7', row:'row-span-2', zIndex: 2 },
+  { frame:'photo-polaroid', tilt:'tilt-r',    aspect:'80%',  col:'md:col-span-5', row:'',           zIndex: 3 },
+  { frame:'photo-film',     tilt:'tilt-sm-l', aspect:'75%',  col:'md:col-span-5', row:'',           zIndex: 1 },
+  { frame:'photo-torn',     tilt:'tilt-sm-r', aspect:'100%', col:'md:col-span-4', row:'',           zIndex: 2 },
+  { frame:'photo-luxury',   tilt:'tilt-l',    aspect:'75%',  col:'md:col-span-4', row:'',           zIndex: 3 },
+  { frame:'photo-polaroid', tilt:'',          aspect:'85%',  col:'md:col-span-4', row:'',           zIndex: 1 },
+  { frame:'photo-film',     tilt:'tilt-r',    aspect:'70%',  col:'md:col-span-6', row:'',           zIndex: 2 },
+  { frame:'photo-torn',     tilt:'tilt-sm-l', aspect:'75%',  col:'md:col-span-6', row:'',           zIndex: 3 },
+]
+
+function EventsGallery({ images }: { images: string[] }) {
+  const preview = images.slice(0, 8)
+
+  return (
+    <section className="sec" style={{ background:'var(--bg-mid)', position:'relative', overflow:'hidden' }}>
+      {/* BG texture */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background:'radial-gradient(ellipse 80% 60% at 20% 50%, rgba(13,59,26,0.2) 0%, transparent 65%)',
+      }}/>
+
+      <div className="wrap">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
+          <div>
+            <div className="eyebrow"><PiLeafFill size={10}/>The Archive</div>
+            <h2 className="t-section" style={{ color:'var(--cream)' }}>
+              Nights We<br/>
+              <span className="t-section-italic t-fire">Lived</span>
+            </h2>
+            <span className="div-fire"/>
+          </div>
+          <Link href="/gallery" className="btn btn-fire-outline flex-shrink-0 self-start md:self-auto" style={{ marginBottom:'0.5rem' }}>
+            Full Gallery <FiArrowRight size={12}/>
+          </Link>
+        </div>
+
+        {/* Photo grid - styled frames */}
+        {preview.length > 0 ? (
+          <div className="grid grid-cols-12 gap-6 md:gap-8" style={{ gridAutoRows: '220px', alignItems: 'start' }}>
+            {preview.map((file, i) => {
+              const cfg = FRAME_CONFIGS[i % FRAME_CONFIGS.length]
+              return (
+                <motion.div
+                  key={file}
+                  className={`${cfg.col} ${cfg.row} card-hover ${cfg.frame} ${cfg.tilt} col-span-12`}
+                  style={{ zIndex: cfg.zIndex }}
+                  initial={{ opacity:0, y:48, rotate: cfg.tilt.includes('r') ? 3 : cfg.tilt.includes('l') ? -3 : 0 }}
+                  whileInView={{ opacity:1, y:0, rotate: cfg.tilt.includes('r') ? (cfg.tilt.includes('sm') ? 1.4 : 2) : cfg.tilt.includes('l') ? (cfg.tilt.includes('sm') ? -1.2 : -2.5) : 0 }}
+                  viewport={{ once:true, margin:'-80px' }}
+                  transition={{ duration:0.85, ease:EX, delay: i * 0.08 }}
+                  whileHover={{ scale:1.04, rotate:0, zIndex:10, transition:{ duration:0.5, ease:EX } }}
+                >
+                  <div className="relative w-full" style={{ paddingBottom: cfg.aspect, overflow:'hidden' }}>
+                    <Image
+                      src={`/past-events/${file}`}
+                      alt={`Groove Garden event ${i+1}`}
+                      fill className="object-cover"
+                      sizes="(max-width:768px)100vw,50vw"
+                    />
+                    <div className="ov-bottom"/>
+                    {/* Photo number badge */}
+                    <div className="absolute bottom-3 right-3"
+                      style={{ fontFamily:'var(--f-mono)', fontSize:'0.52rem', letterSpacing:'0.15em', color:'rgba(240,235,224,0.5)', background:'rgba(10,15,13,0.7)', padding:'3px 8px', backdropFilter:'blur(4px)' }}>
+                      {String(i+1).padStart(2,'0')}
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <p style={{ fontFamily:'var(--f-mono)', fontSize:'0.65rem', color:'var(--cream-15)', letterSpacing:'0.2em' }}>
+              ADD PHOTOS TO /public/past-events
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+/* ════════════════════════════════════════════════════════════
+   FLYERS CAROUSEL - editorial horizontal scroll
+════════════════════════════════════════════════════════════ */
+function FlyersCarousel({ flyers }: { flyers: string[] }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const scroll = (d: 1|-1) => ref.current?.scrollBy({ left: d*300, behavior:'smooth' })
+
+  return (
+    <section className="sec" style={{
+      background:'linear-gradient(160deg, #0a0f0d 0%, #0d1e12 50%, #0a0f0d 100%)',
+      borderTop:'1px solid rgba(240,235,224,0.05)',
+      borderBottom:'1px solid rgba(240,235,224,0.05)',
+      overflow:'hidden',
+      position:'relative',
+    }}>
+      {/* Left/right fade */}
+      <div className="absolute left-0 top-0 bottom-0 w-[clamp(60px,8vw,120px)] z-10 pointer-events-none"
+        style={{ background:'linear-gradient(to right, #0a0f0d, transparent)' }}/>
+      <div className="absolute right-0 top-0 bottom-0 w-[clamp(60px,8vw,120px)] z-10 pointer-events-none"
+        style={{ background:'linear-gradient(to left, #0a0f0d, transparent)' }}/>
+
+      {/* Ambient */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background:'radial-gradient(ellipse 60% 80% at 80% 40%, rgba(232,93,4,0.06) 0%, transparent 65%)' }}/>
+
+      <div className="wrap">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14">
+          <div>
+            <div className="eyebrow"><PiTreePalm size={11}/>Archive</div>
+            <h2 className="t-section" style={{ color:'var(--cream)' }}>
+              Past<br/>
+              <span className="t-section-italic t-fire">Editions</span>
+            </h2>
+            <span className="div-fire"/>
+          </div>
+          <div className="flex gap-3 mb-2">
+            {[{d:-1 as -1,I:<FiArrowLeft size={15}/>},{d:1 as 1,I:<FiArrowRight size={15}/>}].map(({d,I},i)=>(
+              <button key={i} onClick={()=>scroll(d)}
+                className="w-12 h-12 flex items-center justify-center transition-all duration-300"
+                style={{ border:'1px solid rgba(232,93,4,0.25)', color:'var(--cream-40)', background:'transparent', cursor:'none' }}
+                onMouseEnter={e=>{const el=e.currentTarget as HTMLElement;el.style.background='var(--fire)';el.style.color='var(--bg-base)';el.style.borderColor='var(--fire)'}}
+                onMouseLeave={e=>{const el=e.currentTarget as HTMLElement;el.style.background='transparent';el.style.color='var(--cream-40)';el.style.borderColor='rgba(232,93,4,0.25)'}}
+              >{I}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll track - full bleed */}
+      <div ref={ref} className="sx flex gap-5 pb-4"
+        style={{ paddingLeft:'clamp(1.5rem,6vw,7rem)', paddingRight:'clamp(1.5rem,6vw,7rem)' }}>
+        {flyers.map((file, i) => {
+          // Alternate frame styles
+          const frames = ['photo-luxury','photo-polaroid','photo-film','photo-torn']
+          const tilts  = ['tilt-sm-r','','tilt-sm-l','tilt-r','tilt-l','']
+          return (
+            <motion.div key={file}
+              className={`flex-shrink-0 card-hover ${frames[i%frames.length]} ${tilts[i%tilts.length]}`}
+              style={{ width:'clamp(200px,18vw,260px)' }}
+              initial={{ opacity:0, x:40 }}
+              whileInView={{ opacity:1, x:0 }}
+              viewport={{ once:true, margin:'-40px' }}
+              transition={{ duration:0.7, ease:EX, delay:Math.min(i*0.07,0.5) }}
+              whileHover={{ scale:1.05, rotate:0, y:-8, zIndex:10, transition:{ duration:0.5, ease:EX }}}
+            >
+              <div className="relative" style={{ paddingBottom:'138%', overflow:'hidden' }}>
+                <Image src={`/main-past-flyers/${file}`} alt={`Flyer ${i+1}`} fill className="object-cover" sizes="260px"/>
+                <div className="ov-bottom"/>
+                <div className="absolute bottom-3 left-3"
+                  style={{ fontFamily:'var(--f-mono)', fontSize:'0.5rem', letterSpacing:'0.12em', color:'rgba(240,235,224,0.45)' }}>
+                  #{String(i+1).padStart(2,'0')}
+                </div>
+              </div>
+            </motion.div>
+          )
+        })}
+        {flyers.length===0 && (
+          <p style={{ fontFamily:'var(--f-mono)', fontSize:'0.65rem', color:'var(--cream-15)', letterSpacing:'0.2em', padding:'4rem 0' }}>
+            ADD FLYERS TO /public/main-past-flyers
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}
+
+/* ════════════════════════════════════════════════════════════
+   VIDEO SECTION - immersive cinema cards
+════════════════════════════════════════════════════════════ */
+function VideoSection({ videos }: { videos: string[] }) {
+  const [playing, setPlaying] = useState<number|null>(null)
+  const refs  = useRef<(HTMLVideoElement|null)[]>([])
+  
+  // Find anniversary video first, otherwise just take the first one
+  const anniversaryVideo = videos.find(v => v.toLowerCase().includes('anniversary'))
+  const featured = anniversaryVideo ? [anniversaryVideo] : videos.slice(0, 1)
+
+  const toggle = (i: number) => {
+    const v = refs.current[i]
+    if (!v) return
+    if (v.paused) {
+      refs.current.forEach((x,j) => j!==i && x?.pause())
+      v.play(); setPlaying(i)
+    } else { v.pause(); setPlaying(null) }
+  }
+
+  return (
+    <section className="sec" style={{ background:'var(--bg-mid)', position:'relative', overflow:'hidden' }}>
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background:'radial-gradient(ellipse 70% 60% at 85% 30%, rgba(45,106,79,0.12) 0%, transparent 65%)' }}/>
+
+      <div className="wrap">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+          <div>
+            <div className="eyebrow"><PiMusicNoteFill size={10}/>Raw Energy</div>
+            <h2 className="t-section" style={{ color:'var(--cream)' }}>
+              Feel The<br/>
+              <span className="t-section-italic t-fire">Energy</span>
+            </h2>
+            <span className="div-fire"/>
+          </div>
+          <Link href="/gallery" className="btn btn-fire-outline flex-shrink-0 self-start md:self-auto" style={{ marginBottom:'0.5rem' }}>
+            Watch More <FiArrowRight size={12}/>
+          </Link>
+        </div>
+
+        {featured.length > 0 ? (
+          <div className="grid grid-cols-1 gap-5">
+            {featured.map((file,i) => (
+              <motion.div key={file}
+                className="card-hover photo-luxury"
+                style={{ position:'relative', paddingBottom: '42%', cursor:'none' }}
+                initial={{ opacity:0, y:40 }}
+                whileInView={{ opacity:1, y:0 }}
+                viewport={{ once:true, margin:'-60px' }}
+                transition={{ duration:0.8, ease:EX, delay:i*0.1 }}
+                onClick={()=>toggle(i)}
+              >
+                <video
+                  ref={el=>{refs.current[i]=el}}
+                  src={`/past-events-videos/${file}`}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loop playsInline
+                  // Remove muted, set volume to 1 on play
+                  onPlay={e => { e.currentTarget.muted = false; e.currentTarget.volume = 1; }}
+                />
+
+                {/* Overlay */}
+                <motion.div className="absolute inset-0 flex items-center justify-center"
+                  animate={{ background: playing===i ? 'rgba(10,15,13,0)' : 'rgba(10,15,13,0.42)' }}
+                  transition={{ duration:0.4 }}
+                >
+                  <AnimatePresence mode="wait">
+                    {playing !== i && (
+                      <motion.div key="play"
+                        initial={{ opacity:0, scale:0.7 }}
+                        animate={{ opacity:1, scale:1 }}
+                        exit={{ opacity:0, scale:0.7 }}
+                        transition={{ duration:0.35, ease:EX }}
+                        className="flex flex-col items-center gap-4"
+                      >
+                        <div className="w-20 h-20 rounded-full flex items-center justify-center"
+                          style={{ border:'2px solid rgba(232,93,4,0.7)', background:'rgba(10,15,13,0.5)', backdropFilter:'blur(12px)' }}>
+                          <FiPlay size={24} style={{ color:'var(--fire-bright)', marginLeft:3 }}/>
+                        </div>
+                        <p style={{ fontFamily:'var(--f-mono)', fontSize:'0.55rem', letterSpacing:'0.2em', color:'rgba(240,235,224,0.55)' }}>
+                          TAP TO PLAY
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+
+                {/* Pause button when playing */}
+                {playing===i && (
+                  <div className="absolute top-4 right-4 opacity-0 hover:opacity-100 transition-opacity duration-300">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center"
+                      style={{ background:'rgba(10,15,13,0.65)', backdropFilter:'blur(8px)', border:'1px solid rgba(240,235,224,0.2)' }}>
+                      <FiPause size={14} style={{ color:'var(--cream-75)' }}/>
+                    </div>
+                  </div>
+                )}
+
+                <div className="ov-bottom"/>
+                <div className="absolute bottom-4 left-5"
+                  style={{ fontFamily:'var(--f-mono)', fontSize:'0.55rem', letterSpacing:'0.12em', color:'var(--cream-40)' }}>
+                  {file.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ').toUpperCase()}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ fontFamily:'var(--f-mono)', fontSize:'0.65rem', color:'var(--cream-15)', letterSpacing:'0.2em', textAlign:'center', padding:'4rem 0' }}>
+            ADD VIDEOS TO /public/past-events-videos
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}
+
+/* ════════════════════════════════════════════════════════════
+   UPCOMING EVENT - luxury split layout
+════════════════════════════════════════════════════════════ */
+// function UpcomingEvent({ flyer }: { flyer: string }) {
+//   return (
+//     <section className="sec" style={{
+//       background:'linear-gradient(160deg, #130e08 0%, #0a0f0d 40%, #0d2b18 100%)',
+//       borderTop:'1px solid rgba(240,235,224,0.05)',
+//     }}>
+//       <div className="wrap">
+//         <div className="text-center mb-20">
+//           <div className="eyebrow justify-center" style={{ justifyContent:'center' }}>
+//             <PiTreePalm size={11}/> What&apos;s Coming <PiTreePalm size={11}/>
+//           </div>
+//         </div>
+
+//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-28 items-center">
+
+//           {/* Flyer - framed with luxury border + angled glow */}
+//           <motion.div
+//             className="relative"
+//             initial={{ opacity:0, x:-50, rotate:-2 }}
+//             whileInView={{ opacity:1, x:0, rotate:-1.5 }}
+//             viewport={{ once:true, margin:'-80px' }}
+//             transition={{ duration:1, ease:EX }}
+//             whileHover={{ rotate:0, scale:1.02, transition:{ duration:0.5, ease:EX } }}
+//           >
+//             <div className="photo-luxury" style={{ position:'relative' }}>
+//               <div style={{ paddingBottom:'128%', position:'relative', overflow:'hidden' }}>
+//                 {flyer ? (
+//                   <Image src={`/past-flyers/${flyer}`} alt="Upcoming Event" fill className="object-cover"/>
+//                 ) : (
+//                   <div className="absolute inset-0 flex items-center justify-center"
+//                     style={{ background:'var(--bg-raised)' }}>
+//                     <p style={{ fontFamily:'var(--f-mono)', fontSize:'0.6rem', color:'var(--fire-bright)', letterSpacing:'0.2em' }}>
+//                       FLYER DROPPING SOON
+//                     </p>
+//                   </div>
+//                 )}
+//                 <div className="ov-bottom"/>
+//               </div>
+//             </div>
+
+//             {/* Glow behind flyer */}
+//             <div className="absolute -inset-8 -z-10 rounded-full pointer-events-none"
+//               style={{ background:'radial-gradient(ellipse at center, rgba(232,93,4,0.15) 0%, transparent 70%)', filter:'blur(20px)' }}/>
+
+//             {/* UPCOMING badge */}
+//             <div className="absolute -top-4 -right-4 px-5 py-2"
+//               style={{ background:'var(--g-fire)', fontFamily:'var(--f-sans)', fontWeight:700, fontSize:'0.58rem', letterSpacing:'0.2em', color:'var(--bg-base)', boxShadow:'0 8px 32px rgba(232,93,4,0.4)' }}>
+//               UPCOMING
+//             </div>
+//           </motion.div>
+
+//           {/* Info */}
+//           <motion.div
+//             initial={{ opacity:0, x:40 }}
+//             whileInView={{ opacity:1, x:0 }}
+//             viewport={{ once:true, margin:'-80px' }}
+//             transition={{ duration:0.9, ease:EX, delay:0.15 }}
+//           >
+//             <h2 className="t-section" style={{ color:'var(--cream)', marginBottom:'0.25rem' }}>
+//               Groove Till
+//             </h2>
+//             <h2 className="t-section-italic t-fire glow-fire" style={{ marginBottom:'0.5rem' }}>
+//               Sunrise
+//             </h2>
+//             <span className="div-fire" style={{ marginBottom:'3rem' }}/>
+
+//             <div className="flex flex-col gap-6 mb-12">
+//               {[
+//                 { icon:<RiMapPin2Line size={14}/>, label:'Venue',   val:'Groove Garden, FUOYE – Oye-Ekiti' },
+//                 { icon:<PiStarFill    size={12}/>, label:'Date',    val:'TBA - Stay Tuned' },
+//                 { icon:<PiMusicNoteFill size={12}/>, label:'Time',  val:'10 PM till Sunrise' },
+//                 { icon:<PiLeafFill    size={12}/>, label:'Dress',   val:'Turn Up Ready' },
+//               ].map(({ icon, label, val }, i) => (
+//                 <motion.div key={label}
+//                   initial={{ opacity:0, x:20 }}
+//                   whileInView={{ opacity:1, x:0 }}
+//                   viewport={{ once:true }}
+//                   transition={{ duration:0.5, ease:EX, delay:0.25+i*0.08 }}
+//                   className="flex items-start gap-5 pb-5"
+//                   style={{ borderBottom:'1px solid rgba(240,235,224,0.06)' }}
+//                 >
+//                   <div className="flex-shrink-0 mt-1" style={{ color:'var(--fire-bright)' }}>{icon}</div>
+//                   <div>
+//                     <p style={{ fontFamily:'var(--f-mono)', fontSize:'0.55rem', letterSpacing:'0.22em', color:'rgba(232,93,4,0.6)', marginBottom:'5px' }}>
+//                       {label.toUpperCase()}
+//                     </p>
+//                     <p style={{ fontFamily:'var(--f-display)', fontWeight:300, fontSize:'1rem', color:'var(--cream)' }}>
+//                       {val}
+//                     </p>
+//                   </div>
+//                 </motion.div>
+//               ))}
+//             </div>
+
+//             <div className="flex flex-col sm:flex-row gap-4">
+//               <Link href="/contact" className="btn btn-fire">
+//                 <span>Reserve a Spot</span><FiArrowRight size={13}/>
+//               </Link>
+//               <Link href="/past-events" className="btn btn-outline">
+//                 View Archive
+//               </Link>
+//             </div>
+//           </motion.div>
+//         </div>
+//       </div>
+//     </section>
+//   )
+// }
+
+/* ════════════════════════════════════════════════════════════
+   MAIN PAGE
+════════════════════════════════════════════════════════════ */
+export default function HomePage() {
+  const [splash, setSplash] = useState(true)
+  const [images, setImages] = useState<string[]>([])
+  const [flyers, setFlyers] = useState<string[]>([])
+  const [videos, setVideos] = useState<string[]>([])
+
+  const done = useCallback(() => { setSplash(false); document.body.style.overflow = 'auto' }, [])
+
+  useEffect(() => {
+    if (splash) document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = 'auto' }
+  }, [splash])
+
+  useEffect(() => {
+    getFiles('past-events').then(f => setImages(shuffle(f.filter(x => IMG.test(x)))))
+    getFiles('main-past-flyers').then(f => setFlyers(f.filter(x => IMG.test(x))))
+    getFiles('past-events-videos').then(f => setVideos(f.filter(x => VID.test(x))))
+  }, [])
+
+  return (
+    <>
+      {splash && <Splash onDone={done}/>}
+
+      <AnimatePresence>
+        {!splash && (
+          <motion.div
+            initial={{ opacity:0 }}
+            animate={{ opacity:1 }}
+            transition={{ duration:0.8, ease:EX }}
+          >
+            <Hero/>
+            <Marquee/>
+            <EventsGallery images={images}/>
+            <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
+            <FlyersCarousel flyers={flyers}/>
+            <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
+            <VideoSection videos={videos}/>
+            <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
+            {/* <UpcomingEvent flyer={flyers[0]||''}/> */}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
