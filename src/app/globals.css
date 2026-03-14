@@ -144,7 +144,7 @@ body {
 .t-hero {
   font-family: var(--f-display);
   font-weight: 700;
-  font-size: clamp(6rem, 18vw, 17rem);
+  font-size: clamp(4.5rem, 18vw, 17rem);
   line-height: 0.87;
   letter-spacing: -0.03em;
   color: var(--cream);
@@ -154,7 +154,7 @@ body {
   font-family: var(--f-display);
   font-weight: 300;
   font-style: italic;
-  font-size: clamp(6rem, 18vw, 17rem);
+  font-size: clamp(4.5rem, 18vw, 17rem);
   line-height: 0.87;
   letter-spacing: -0.02em;
 }
