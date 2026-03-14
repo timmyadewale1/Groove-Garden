@@ -327,7 +327,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta property="og:image:width" content="800" />
         <meta property="og:image:height" content="600" />
         <meta property="og:image:type" content="image/png" />
-        <meta property="og:url" content="https://groovegarden.vercel.app" />
+        <meta property="og:url" content="https://groovegardenhq.vercel.app" />
         
         {/* Twitter Card Meta Tags */}
         <meta name="twitter:card" content="summary_large_image" />

@@ -167,10 +167,11 @@ function PageHeader({ count }: { count: number }) {
               </p>
             </div>
             {count > 0 && (
-              <div>
-                <p style={{ fontFamily: 'var(--f-display)', fontWeight: 700, fontStyle: 'italic', fontSize: 'clamp(2rem,3.5vw,3rem)', color: 'var(--fire-bright)', lineHeight: 1 }}>{count}</p>
-                <p style={{ fontFamily: 'var(--f-mono)', fontSize: '0.55rem', letterSpacing: '0.2em', color: 'var(--cream-40)', marginTop: '5px' }}>TOTAL MEDIA</p>
-              </div>
+              // <div>
+              //   <p style={{ fontFamily: 'var(--f-display)', fontWeight: 700, fontStyle: 'italic', fontSize: 'clamp(2rem,3.5vw,3rem)', color: 'var(--fire-bright)', lineHeight: 1 }}>{count}</p>
+              //   <p style={{ fontFamily: 'var(--f-mono)', fontSize: '0.55rem', letterSpacing: '0.2em', color: 'var(--cream-40)', marginTop: '5px' }}>TOTAL MEDIA</p>
+              // </div>
+              null
             )}
           </motion.div>
         </div>
