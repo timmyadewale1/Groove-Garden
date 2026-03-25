@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
 import {
-  FiArrowRight, FiArrowDown, FiPlay, FiPause, FiArrowLeft
+  FiArrowRight, FiArrowDown, FiArrowLeft
 } from 'react-icons/fi'
 import {
   PiTreePalm, PiMusicNoteFill, PiLeafFill, PiStarFill
@@ -31,8 +31,8 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 const IMG = /\.(png|jpg|jpeg|webp)$/i
-const VID = /\.(mp4|mov|webm)$/i
 const EX  = [0.19, 1, 0.22, 1] as const
+const HOME_FEATURED_YOUTUBE_ID = '1RURksGYP-E'
 
 /* ════════════════════════════════════════════════════════════
    SPLASH - fullscreen cinematic entrance
@@ -414,7 +414,10 @@ function FlyersCarousel({ flyers }: { flyers: string[] }) {
             <span className="div-fire"/>
           </div>
           <div className="flex gap-3 mb-2">
-            {[{d:-1 as -1,I:<FiArrowLeft size={15}/>},{d:1 as 1,I:<FiArrowRight size={15}/>}].map(({d,I},i)=>(
+            {([
+              { d: -1, I: <FiArrowLeft size={15}/> },
+              { d: 1, I: <FiArrowRight size={15}/> },
+            ] as const).map(({d,I},i)=>(
               <button key={i} onClick={()=>scroll(d)}
                 className="w-12 h-12 flex items-center justify-center transition-all duration-300"
                 style={{ border:'1px solid rgba(232,93,4,0.25)', color:'var(--cream-40)', background:'transparent', cursor:'none' }}
@@ -467,23 +470,7 @@ function FlyersCarousel({ flyers }: { flyers: string[] }) {
 /* ════════════════════════════════════════════════════════════
    VIDEO SECTION - immersive cinema cards
 ════════════════════════════════════════════════════════════ */
-function VideoSection({ videos }: { videos: string[] }) {
-  const [playing, setPlaying] = useState<number|null>(null)
-  const refs  = useRef<(HTMLVideoElement|null)[]>([])
-  
-  // Find anniversary video first, otherwise just take the first one
-  const anniversaryVideo = videos.find(v => v.toLowerCase().includes('anniversary'))
-  const featured = anniversaryVideo ? [anniversaryVideo] : videos.slice(0, 1)
-
-  const toggle = (i: number) => {
-    const v = refs.current[i]
-    if (!v) return
-    if (v.paused) {
-      refs.current.forEach((x,j) => j!==i && x?.pause())
-      v.play(); setPlaying(i)
-    } else { v.pause(); setPlaying(null) }
-  }
-
+function VideoSection() {
   return (
     <section className="sec" style={{ background:'var(--bg-mid)', position:'relative', overflow:'hidden' }}>
       <div className="absolute inset-0 pointer-events-none"
@@ -504,76 +491,38 @@ function VideoSection({ videos }: { videos: string[] }) {
           </Link>
         </div>
 
-        {featured.length > 0 ? (
-          <div className="grid grid-cols-1 gap-5">
-            {featured.map((file,i) => (
-              <motion.div key={file}
-                className="card-hover photo-luxury"
-                style={{ position:'relative', paddingBottom: '42%', cursor:'none' }}
-                initial={{ opacity:0, y:40 }}
-                whileInView={{ opacity:1, y:0 }}
-                viewport={{ once:true, margin:'-60px' }}
-                transition={{ duration:0.8, ease:EX, delay:i*0.1 }}
-                onClick={()=>toggle(i)}
-              >
-                <video
-                  ref={el=>{refs.current[i]=el}}
-                  src={`/past-events-videos/${file}`}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  loop playsInline
-                  // Remove muted, set volume to 1 on play
-                  onPlay={e => { e.currentTarget.muted = false; e.currentTarget.volume = 1; }}
-                />
+        <div className="grid grid-cols-1 gap-5">
+          <motion.div
+            className="card-hover photo-luxury"
+            style={{ position:'relative', paddingBottom: '42%', cursor:'none' }}
+            initial={{ opacity:0, y:40 }}
+            whileInView={{ opacity:1, y:0 }}
+            viewport={{ once:true, margin:'-60px' }}
+            transition={{ duration:0.8, ease:EX }}
+          >
+            <iframe
+              src={`https://www.youtube.com/embed/${HOME_FEATURED_YOUTUBE_ID}?controls=1&modestbranding=1`}
+              className="absolute inset-0 w-full h-full"
+              title="Groove Garden featured YouTube video"
+              allowFullScreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              style={{ border: 'none' }}
+            />
 
-                {/* Overlay */}
-                <motion.div className="absolute inset-0 flex items-center justify-center"
-                  animate={{ background: playing===i ? 'rgba(10,15,13,0)' : 'rgba(10,15,13,0.42)' }}
-                  transition={{ duration:0.4 }}
-                >
-                  <AnimatePresence mode="wait">
-                    {playing !== i && (
-                      <motion.div key="play"
-                        initial={{ opacity:0, scale:0.7 }}
-                        animate={{ opacity:1, scale:1 }}
-                        exit={{ opacity:0, scale:0.7 }}
-                        transition={{ duration:0.35, ease:EX }}
-                        className="flex flex-col items-center gap-4"
-                      >
-                        <div className="w-20 h-20 rounded-full flex items-center justify-center"
-                          style={{ border:'2px solid rgba(232,93,4,0.7)', background:'rgba(10,15,13,0.5)', backdropFilter:'blur(12px)' }}>
-                          <FiPlay size={24} style={{ color:'var(--fire-bright)', marginLeft:3 }}/>
-                        </div>
-                        <p style={{ fontFamily:'var(--f-mono)', fontSize:'0.55rem', letterSpacing:'0.2em', color:'rgba(240,235,224,0.55)' }}>
-                          TAP TO PLAY
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
+            <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1 z-10"
+              style={{ background:'var(--fire)', backdropFilter:'blur(8px)' }}>
+              <span style={{ fontFamily:'var(--f-mono)', fontSize:'0.48rem', letterSpacing:'0.15em', color:'var(--bg-base)', fontWeight:600 }}>
+                YOUTUBE
+              </span>
+            </div>
 
-                {/* Pause button when playing */}
-                {playing===i && (
-                  <div className="absolute top-4 right-4 opacity-0 hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center"
-                      style={{ background:'rgba(10,15,13,0.65)', backdropFilter:'blur(8px)', border:'1px solid rgba(240,235,224,0.2)' }}>
-                      <FiPause size={14} style={{ color:'var(--cream-75)' }}/>
-                    </div>
-                  </div>
-                )}
-
-                <div className="ov-bottom"/>
-                <div className="absolute bottom-4 left-5"
-                  style={{ fontFamily:'var(--f-mono)', fontSize:'0.55rem', letterSpacing:'0.12em', color:'var(--cream-40)' }}>
-                  {file.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ').toUpperCase()}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        ) : (
-          <p style={{ fontFamily:'var(--f-mono)', fontSize:'0.65rem', color:'var(--cream-15)', letterSpacing:'0.2em', textAlign:'center', padding:'4rem 0' }}>
-            ADD VIDEOS TO /public/past-events-videos
-          </p>
-        )}
+            <div className="ov-bottom"/>
+            <div className="absolute bottom-4 left-5"
+              style={{ fontFamily:'var(--f-mono)', fontSize:'0.55rem', letterSpacing:'0.12em', color:'var(--cream-40)' }}>
+              ANNIVERSARY RECAP
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   )
@@ -698,7 +647,6 @@ export default function HomePage() {
   const [splash, setSplash] = useState(true)
   const [images, setImages] = useState<string[]>([])
   const [flyers, setFlyers] = useState<string[]>([])
-  const [videos, setVideos] = useState<string[]>([])
 
   const done = useCallback(() => { setSplash(false); document.body.style.overflow = 'auto' }, [])
 
@@ -710,7 +658,6 @@ export default function HomePage() {
   useEffect(() => {
     getFiles('past-events').then(f => setImages(shuffle(f.filter(x => IMG.test(x)))))
     getFiles('main-past-flyers').then(f => setFlyers(f.filter(x => IMG.test(x))))
-    getFiles('past-events-videos').then(f => setVideos(f.filter(x => VID.test(x))))
   }, [])
 
   return (
@@ -730,7 +677,7 @@ export default function HomePage() {
             <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
             <FlyersCarousel flyers={flyers}/>
             <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
-            <VideoSection videos={videos}/>
+            <VideoSection/>
             <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
             {/* <UpcomingEvent flyer={flyers[0]||''}/> */}
           </motion.div>

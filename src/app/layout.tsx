@@ -313,28 +313,6 @@ function Footer() {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <title>Groove Garden - Groove Till Sunrise, Oye-Ekiti</title>
-        <meta name="description" content="Groove Garden - Oye-Ekiti's premier nightlife experience. Every Monday, groove till sunrise." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-        
-        {/* Open Graph Meta Tags for Social Sharing */}
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Groove Garden - Groove Till Sunrise, Oye-Ekiti" />
-        <meta property="og:description" content="Oye-Ekiti's premier nightlife experience. Every Monday, groove till sunrise at Groove Garden." />
-        <meta property="og:image" content="/banners/Groove-Garden-PNG-shadow.png" />
-        <meta property="og:image:width" content="800" />
-        <meta property="og:image:height" content="600" />
-        <meta property="og:image:type" content="image/png" />
-        <meta property="og:url" content="https://groovegardenhq.vercel.app" />
-        
-        {/* Twitter Card Meta Tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Groove Garden - Groove Till Sunrise, Oye-Ekiti" />
-        <meta name="twitter:description" content="Oye-Ekiti's premier nightlife experience. Every Monday, groove till sunrise." />
-        <meta name="twitter:image" content="/banners/Groove-Garden-PNG-shadow.png" />
-      </head>
       <body className="has-noise">
         <Cursor />
         <Navbar />

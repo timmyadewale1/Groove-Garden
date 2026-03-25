@@ -64,6 +64,7 @@ const YOUTUBE_VIDEOS = [
   'https://youtu.be/Ds0bJ4uupxM?si=xHIcDkZnToBt0IQa',
   'https://youtu.be/Njez24_ZFcI?si=189z5xgfH_pSckT9',
   'https://youtu.be/1RURksGYP-E?si=za3TitoCtKGGTJjt',
+  'https://youtu.be/4C56e14TXsE',
 ].map(url => {
   const id = extractYouTubeId(url)
   if (!id) throw new Error(`Invalid YouTube URL: ${url}`)
