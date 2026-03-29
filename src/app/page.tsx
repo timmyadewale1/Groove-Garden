@@ -740,10 +740,117 @@ function VideoSection() {
 /* ════════════════════════════════════════════════════════════
    MAIN PAGE
 ════════════════════════════════════════════════════════════ */
+function UpcomingEvent({ flyer }: { flyer: string }) {
+  return (
+    <section className="sec" style={{
+      background:'linear-gradient(160deg, #130e08 0%, #0a0f0d 40%, #0d2b18 100%)',
+      borderTop:'1px solid rgba(240,235,224,0.05)',
+      borderBottom:'1px solid rgba(240,235,224,0.05)',
+    }}>
+      <div className="wrap">
+        <div className="text-center mb-20">
+          <div className="eyebrow justify-center" style={{ justifyContent:'center' }}>
+            <PiTreePalm size={11}/> Coming Soon <PiTreePalm size={11}/>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-28 items-center">
+          <motion.div
+            className="relative"
+            initial={{ opacity:0, x:-50, rotate:-2 }}
+            whileInView={{ opacity:1, x:0, rotate:-1.5 }}
+            viewport={{ once:true, margin:'-80px' }}
+            transition={{ duration:1, ease:EX }}
+            whileHover={{ rotate:0, scale:1.02, transition:{ duration:0.5, ease:EX } }}
+          >
+            <div className="photo-luxury" style={{ position:'relative' }}>
+              <div style={{ paddingBottom:'128%', position:'relative', overflow:'hidden' }}>
+                {flyer ? (
+                  <Image src={`/coming-soon/${flyer}`} alt="Link Up Monday flyer" fill className="object-cover"/>
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center"
+                    style={{ background:'var(--bg-raised)' }}>
+                    <p style={{ fontFamily:'var(--f-mono)', fontSize:'0.6rem', color:'var(--fire-bright)', letterSpacing:'0.2em' }}>
+                      FLYER DROPPING SOON
+                    </p>
+                  </div>
+                )}
+                <div className="ov-bottom"/>
+              </div>
+            </div>
+
+            <div className="absolute -inset-8 -z-10 rounded-full pointer-events-none"
+              style={{ background:'radial-gradient(ellipse at center, rgba(232,93,4,0.15) 0%, transparent 70%)', filter:'blur(20px)' }}/>
+
+            <div className="absolute -top-4 -right-4 px-5 py-2"
+              style={{ background:'var(--g-fire)', fontFamily:'var(--f-sans)', fontWeight:700, fontSize:'0.58rem', letterSpacing:'0.2em', color:'var(--bg-base)', boxShadow:'0 8px 32px rgba(232,93,4,0.4)' }}>
+              COMING SOON
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity:0, x:40 }}
+            whileInView={{ opacity:1, x:0 }}
+            viewport={{ once:true, margin:'-80px' }}
+            transition={{ duration:0.9, ease:EX, delay:0.15 }}
+          >
+            <h2 className="t-section" style={{ color:'var(--cream)', marginBottom:'0.25rem' }}>
+              Link Up
+            </h2>
+            <h2 className="t-section-italic t-fire glow-fire" style={{ marginBottom:'0.5rem' }}>
+              Monday
+            </h2>
+            <span className="div-fire" style={{ marginBottom:'3rem' }}/>
+
+            <div className="flex flex-col gap-6 mb-12">
+              {[
+                { icon:<RiMapPin2Line size={14}/>, label:'Venue', val:'Champions Cottage, FUOYE Phase 1 Road, Oye-Ekiti' },
+                { icon:<PiStarFill size={12}/>, label:'Date', val:'Monday, March 30, 2026' },
+                { icon:<PiMusicNoteFill size={12}/>, label:'Time', val:'9 PM till Sunrise' },
+                { icon:<PiLeafFill size={12}/>, label:'Entry', val:'Walk in Free • Cabana strictly by reservation' },
+                { icon:<PiTreePalm size={12}/>, label:'Line Up', val:'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy' },
+              ].map(({ icon, label, val }, i) => (
+                <motion.div key={label}
+                  initial={{ opacity:0, x:20 }}
+                  whileInView={{ opacity:1, x:0 }}
+                  viewport={{ once:true }}
+                  transition={{ duration:0.5, ease:EX, delay:0.25+i*0.08 }}
+                  className="flex items-start gap-5 pb-5"
+                  style={{ borderBottom:'1px solid rgba(240,235,224,0.06)' }}
+                >
+                  <div className="flex-shrink-0 mt-1" style={{ color:'var(--fire-bright)' }}>{icon}</div>
+                  <div>
+                    <p style={{ fontFamily:'var(--f-mono)', fontSize:'0.55rem', letterSpacing:'0.22em', color:'rgba(232,93,4,0.6)', marginBottom:'5px' }}>
+                      {label.toUpperCase()}
+                    </p>
+                    <p style={{ fontFamily:'var(--f-display)', fontWeight:300, fontSize:'1rem', color:'var(--cream)' }}>
+                      {val}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/contact" className="btn btn-fire">
+                <span>Reserve a Cabana</span><FiArrowRight size={13}/>
+              </Link>
+              <Link href="/gallery" className="btn btn-outline">
+                View The Vibe
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function HomePage() {
   const [splash, setSplash] = useState(true)
   const [images, setImages] = useState<string[]>([])
   const [flyers, setFlyers] = useState<string[]>([])
+  const [comingSoonFlyers, setComingSoonFlyers] = useState<string[]>([])
 
   const done = useCallback(() => { setSplash(false); document.body.style.overflow = 'auto' }, [])
 
@@ -755,6 +862,7 @@ export default function HomePage() {
   useEffect(() => {
     getFiles('past-events').then(f => setImages(shuffle(f.filter(x => IMG.test(x)))))
     getFiles('main-past-flyers').then(f => setFlyers(f.filter(x => IMG.test(x))))
+    getFiles('coming-soon').then(f => setComingSoonFlyers(f.filter(x => IMG.test(x))))
   }, [])
 
   return (
@@ -771,13 +879,14 @@ export default function HomePage() {
             <Hero/>
             <Marquee/>
             <WhyGrooveGarden/>
+            <UpcomingEvent flyer={comingSoonFlyers[0]||''}/>
+            <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
             <EventsGallery images={images}/>
             <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
             <FlyersCarousel flyers={flyers}/>
             <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
             <VideoSection/>
             <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
-            {/* <UpcomingEvent flyer={flyers[0]||''}/> */}
           </motion.div>
         )}
       </AnimatePresence>

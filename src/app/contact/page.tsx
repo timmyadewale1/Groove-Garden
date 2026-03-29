@@ -427,7 +427,7 @@ const INFO_ITEMS = [
   {
     icon: <RiPhoneLine size={18}/>,
     label: 'Phone',
-    value: '+234 000 000 0000',
+    value: '+234 813 750 0025',
   },
   {
     icon: <RiTimeLine size={18}/>,
