@@ -199,9 +199,8 @@ function Hero() {
             >
               <div className="div-fire" style={{ marginBottom:'1.5rem' }} />
               <p className="t-body" style={{ fontSize: 'clamp(0.95rem,1.3vw,1.1rem)' }}>
-                Every Monday, Oye-Ekiti&apos;s finest converge.<br/>
-                Dance floor open. Vibes at maximum.<br/>
-                Groove till the sun clocks in.
+                FUOYE&apos;s premier entertainment destination, known for hosting unforgettable Monday nights.<br/>
+                Mondays here are the heartbeat of the campus.
               </p>
             </motion.div>
 
@@ -286,6 +285,104 @@ function Marquee() {
         ))}
       </div>
     </div>
+  )
+}
+
+function WhyGrooveGarden() {
+  const points = [
+    'Biggest Monday crowd in FUOYE',
+    'Premium outdoor clubbing experience',
+    'Consistent weekly vibes',
+  ]
+
+  return (
+    <section className="sec" style={{
+      background: 'linear-gradient(160deg, #0a0f0d 0%, #0d1e12 55%, #130e08 100%)',
+      borderTop: '1px solid rgba(240,235,224,0.05)',
+      borderBottom: '1px solid rgba(240,235,224,0.05)',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: [
+          'radial-gradient(ellipse 55% 70% at 15% 40%, rgba(13,59,26,0.28) 0%, transparent 70%)',
+          'radial-gradient(ellipse 45% 55% at 85% 60%, rgba(232,93,4,0.08) 0%, transparent 65%)',
+        ].join(','),
+      }} />
+
+      <div className="wrap relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+          <motion.div
+            className="lg:col-span-5"
+            initial={{ opacity:0, y:30 }}
+            whileInView={{ opacity:1, y:0 }}
+            viewport={{ once:true, margin:'-80px' }}
+            transition={{ duration:0.8, ease:EX }}
+          >
+            <div className="eyebrow"><PiTreePalm size={10}/>Why Groove Garden?</div>
+            <h2 className="t-section" style={{ color:'var(--cream)' }}>
+              The Home Of<br/>
+              <span className="t-section-italic t-fire">Monday Nights</span>
+            </h2>
+            <span className="div-fire"/>
+            <p className="t-body" style={{ marginTop:'1.5rem', maxWidth:'28rem' }}>
+              Built for the crowd that wants the energy to feel full, open-air, and worth showing up for every single week.
+            </p>
+          </motion.div>
+
+          <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {points.map((point, i) => (
+              <motion.div
+                key={point}
+                className="photo-luxury"
+                initial={{ opacity:0, y:36 }}
+                whileInView={{ opacity:1, y:0 }}
+                viewport={{ once:true, margin:'-60px' }}
+                transition={{ duration:0.7, ease:EX, delay:i * 0.08 }}
+                style={{
+                  padding: '1.6rem 1.35rem',
+                  minHeight: '220px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  background: 'linear-gradient(180deg, rgba(18,28,21,0.92) 0%, rgba(10,15,13,0.98) 100%)',
+                }}
+              >
+                <div style={{
+                  width: '2.5rem',
+                  height: '2.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(232,93,4,0.35)',
+                  color: 'var(--fire-bright)',
+                  fontFamily: 'var(--f-mono)',
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.15em',
+                }}>
+                  0{i + 1}
+                </div>
+
+                <p style={{
+                  fontFamily: 'var(--f-display)',
+                  fontSize: 'clamp(1.2rem, 2vw, 1.6rem)',
+                  lineHeight: 1.15,
+                  color: 'var(--cream)',
+                }}>
+                  {point}
+                </p>
+
+                <div style={{
+                  height: '1px',
+                  background: 'linear-gradient(90deg, var(--fire), transparent)',
+                  opacity: 0.7,
+                }} />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -673,6 +770,7 @@ export default function HomePage() {
           >
             <Hero/>
             <Marquee/>
+            <WhyGrooveGarden/>
             <EventsGallery images={images}/>
             <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
             <FlyersCarousel flyers={flyers}/>
