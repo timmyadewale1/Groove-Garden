@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Whitelist allowed folders for security
-  const allowedFolders = ['banners', 'past-events', 'past-flyers', 'main-past-flyers', 'past-events-videos']
+  const allowedFolders = ['banners', 'past-events', 'past-flyers', 'main-past-flyers', 'past-events-videos', 'coming-soon']
   if (!allowedFolders.includes(folder)) {
     return NextResponse.json({ error: 'Folder not allowed' }, { status: 403 })
   }
