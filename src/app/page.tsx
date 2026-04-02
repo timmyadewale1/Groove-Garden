@@ -34,6 +34,103 @@ const IMG = /\.(png|jpg|jpeg|webp)$/i
 const EX  = [0.19, 1, 0.22, 1] as const
 const HOME_FEATURED_YOUTUBE_ID = '1RURksGYP-E'
 
+type Edition = {
+  key: string
+  title: string
+  subtitle?: string
+  dateKey: string
+  dateLabel: string
+  time: string
+  venue: string
+  ticket: string
+  cabana: string
+  lineUp: string
+  flyerKeyword: string
+}
+
+const APRIL_EDITIONS: Edition[] = [
+  {
+    key: 'easter-bunny',
+    title: 'Easter Bunny',
+    dateKey: '2026-04-06',
+    dateLabel: 'Monday, April 6, 2026',
+    time: '9 PM till Sunrise',
+    venue: 'Champions Cottage, FUOYE Phase 1 Road, Oye-Ekiti',
+    ticket: 'Walk in Free',
+    cabana: 'Strictly by Reservation',
+    lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
+    flyerKeyword: 'easter bunny',
+  },
+  {
+    key: 'whistle-fiesta',
+    title: 'Whistle',
+    subtitle: 'Fiesta',
+    dateKey: '2026-04-13',
+    dateLabel: 'Monday, April 13, 2026',
+    time: '9 PM till Sunrise',
+    venue: 'Champions Cottage, FUOYE Phase 1 Road, Oye-Ekiti',
+    ticket: 'Walk in Free',
+    cabana: 'Strictly by Reservation',
+    lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
+    flyerKeyword: 'whistle fiesta',
+  },
+  {
+    key: 'shots-bundles',
+    title: 'Shots &',
+    subtitle: 'Bundles',
+    dateKey: '2026-04-20',
+    dateLabel: 'Monday, April 20, 2026',
+    time: '9 PM till Sunrise',
+    venue: 'Champions Cottage, FUOYE Phase 1 Road, Oye-Ekiti',
+    ticket: 'Walk in Free',
+    cabana: 'Strictly by Reservation',
+    lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
+    flyerKeyword: 'shots & bundles',
+  },
+  {
+    key: 'groove-city',
+    title: 'Groove City',
+    subtitle: 'Grand Theft Auto',
+    dateKey: '2026-04-27',
+    dateLabel: 'Monday, April 27, 2026',
+    time: '9 PM',
+    venue: 'Champions Cottage, FUOYE Phase 1 Road, Oye-Ekiti',
+    ticket: 'Walk in Free',
+    cabana: 'Strictly by Reservation',
+    lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
+    flyerKeyword: 'gta_ groove city',
+  },
+]
+
+function getLagosDateKey() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Lagos',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date())
+
+  const lookup = Object.fromEntries(parts.map(part => [part.type, part.value]))
+  return `${lookup.year}-${lookup.month}-${lookup.day}`
+}
+
+function findFlyerByKeyword(files: string[], keyword: string) {
+  return files.find(file => file.toLowerCase().includes(keyword)) || ''
+}
+
+function getActiveEdition(files: string[]) {
+  const todayKey = getLagosDateKey()
+  const activeEdition =
+    APRIL_EDITIONS.find(edition => edition.dateKey >= todayKey) ||
+    APRIL_EDITIONS[APRIL_EDITIONS.length - 1]
+
+  return {
+    edition: activeEdition,
+    flyer: findFlyerByKeyword(files, activeEdition.flyerKeyword),
+    isEasterSeason: todayKey <= '2026-04-13',
+  }
+}
+
 /* ════════════════════════════════════════════════════════════
    SPLASH - fullscreen cinematic entrance
 ════════════════════════════════════════════════════════════ */
@@ -125,6 +222,7 @@ function Hero() {
   const py   = useTransform(scrollYProgress, [0,1], ['0%', '30%'])
   // Fade only after stats row is fully visible (e.g., after 0.8 scroll progress)
   const fade = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+  const isEasterSeason = getLagosDateKey() <= '2026-04-13'
 
   return (
     <section ref={ref} className="relative min-h-[100svh] flex items-end overflow-hidden bg-lines"
@@ -142,6 +240,63 @@ function Hero() {
           'radial-gradient(ellipse 60% 40% at 50% 100%, rgba(45,106,79,0.18) 0%, transparent 60%)',
         ].join(','),
       }} />
+
+      {isEasterSeason && (
+        <>
+          <div className="absolute top-0 left-0 right-0 h-14 pointer-events-none opacity-80"
+            style={{
+              background: 'repeating-linear-gradient(90deg, rgba(255,209,102,0.9) 0 16px, transparent 16px 54px, rgba(255,200,221,0.8) 54px 70px, transparent 70px 108px, rgba(144,224,239,0.85) 108px 124px, transparent 124px 162px)',
+              clipPath: 'polygon(0 0,100% 0,100% 40%,96% 52%,92% 40%,88% 52%,84% 40%,80% 52%,76% 40%,72% 52%,68% 40%,64% 52%,60% 40%,56% 52%,52% 40%,48% 52%,44% 40%,40% 52%,36% 40%,32% 52%,28% 40%,24% 52%,20% 40%,16% 52%,12% 40%,8% 52%,4% 40%,0 52%)',
+            }} />
+          <div className="absolute top-[18%] left-[clamp(1rem,4vw,4rem)] w-[clamp(52px,6vw,76px)] h-[clamp(72px,8vw,104px)] rounded-[50%]"
+            style={{
+              background: 'linear-gradient(180deg, #ffd166 0%, #ff9f1c 100%)',
+              boxShadow: '0 18px 40px rgba(255, 209, 102, 0.18)',
+              transform: 'rotate(-18deg)',
+              border: '2px solid rgba(255,255,255,0.14)',
+            }} />
+          <div className="absolute top-[20%] left-[clamp(1.8rem,6vw,5rem)] w-[clamp(16px,1.8vw,22px)] h-[clamp(16px,1.8vw,22px)] rounded-full"
+            style={{ background: 'rgba(255,255,255,0.16)' }} />
+          <div className="absolute top-[14%] right-[clamp(1rem,5vw,5rem)] flex gap-2 opacity-90">
+            <div style={{
+              width: 'clamp(22px,2.3vw,30px)',
+              height: 'clamp(64px,7vw,92px)',
+              background: 'linear-gradient(180deg, #ffe5ec 0%, #ffc2d1 100%)',
+              borderRadius: '999px 999px 20px 20px',
+              transform: 'rotate(-12deg)',
+              border: '2px solid rgba(255,255,255,0.16)',
+            }} />
+            <div style={{
+              width: 'clamp(22px,2.3vw,30px)',
+              height: 'clamp(64px,7vw,92px)',
+              background: 'linear-gradient(180deg, #e0fbfc 0%, #98f5e1 100%)',
+              borderRadius: '999px 999px 20px 20px',
+              transform: 'rotate(12deg)',
+              border: '2px solid rgba(255,255,255,0.16)',
+            }} />
+          </div>
+          <div className="absolute bottom-[24%] right-[clamp(1rem,6vw,6rem)] w-[clamp(44px,5vw,66px)] h-[clamp(60px,7vw,90px)] rounded-[50%] pointer-events-none"
+            style={{
+              background: 'linear-gradient(180deg, #caf0f8 0%, #90e0ef 100%)',
+              transform: 'rotate(14deg)',
+              border: '2px solid rgba(255,255,255,0.14)',
+              boxShadow: '0 14px 32px rgba(144,224,239,0.16)',
+            }} />
+          <div className="absolute bottom-[23%] right-[clamp(1.8rem,7.4vw,7.3rem)] w-[12px] h-[12px] rounded-full pointer-events-none"
+            style={{ background: 'rgba(255,255,255,0.18)' }} />
+          <div className="absolute bottom-[34%] left-[clamp(1.2rem,7vw,7rem)] pointer-events-none"
+            style={{
+              fontFamily: 'var(--f-mono)',
+              fontSize: '0.58rem',
+              letterSpacing: '0.22em',
+              color: 'rgba(255,240,245,0.55)',
+              textTransform: 'uppercase',
+              transform: 'rotate(-8deg)',
+            }}>
+            Easter Mode
+          </div>
+        </>
+      )}
 
       {/* Dot grid texture */}
       <div className="absolute inset-0 pointer-events-none bg-dots" style={{ opacity: 0.5 }} />
@@ -740,17 +895,76 @@ function VideoSection() {
 /* ════════════════════════════════════════════════════════════
    MAIN PAGE
 ════════════════════════════════════════════════════════════ */
-function UpcomingEvent({ flyer }: { flyer: string }) {
+function UpcomingEvent({
+  flyer,
+  edition,
+  isEasterSeason,
+}: {
+  flyer: string
+  edition: Edition
+  isEasterSeason: boolean
+}) {
   return (
     <section className="sec" style={{
       background:'linear-gradient(160deg, #130e08 0%, #0a0f0d 40%, #0d2b18 100%)',
       borderTop:'1px solid rgba(240,235,224,0.05)',
       borderBottom:'1px solid rgba(240,235,224,0.05)',
+      position:'relative',
+      overflow:'hidden',
     }}>
+      {isEasterSeason && (
+        <>
+          <div className="absolute inset-x-0 top-0 h-12 pointer-events-none opacity-75"
+            style={{
+              background: 'repeating-linear-gradient(90deg, rgba(255,209,102,0.8) 0 14px, transparent 14px 42px, rgba(202,240,248,0.8) 42px 56px, transparent 56px 84px, rgba(255,200,221,0.8) 84px 98px, transparent 98px 126px)',
+              clipPath: 'polygon(0 0,100% 0,100% 38%,95% 54%,90% 38%,85% 54%,80% 38%,75% 54%,70% 38%,65% 54%,60% 38%,55% 54%,50% 38%,45% 54%,40% 38%,35% 54%,30% 38%,25% 54%,20% 38%,15% 54%,10% 38%,5% 54%,0 38%)',
+            }} />
+          <div className="absolute top-10 left-[max(1rem,4vw)] w-14 h-20 rounded-[50%]"
+            style={{
+              background: 'linear-gradient(180deg, #f9c74f 0%, #f9844a 100%)',
+              transform: 'rotate(-16deg)',
+              boxShadow: '0 12px 30px rgba(249,199,79,0.18)',
+              border: '2px solid rgba(255,255,255,0.14)',
+            }} />
+          <div className="absolute top-16 right-[max(1rem,5vw)] flex gap-2 opacity-85">
+            <div style={{
+              width: '18px',
+              height: '58px',
+              background: 'linear-gradient(180deg, #ffe5ec 0%, #ffc8dd 100%)',
+              borderRadius: '999px 999px 18px 18px',
+              transform: 'rotate(-10deg)',
+            }} />
+            <div style={{
+              width: '18px',
+              height: '58px',
+              background: 'linear-gradient(180deg, #caf0f8 0%, #90e0ef 100%)',
+              borderRadius: '999px 999px 18px 18px',
+              transform: 'rotate(10deg)',
+            }} />
+          </div>
+          <div className="absolute bottom-10 right-[max(1rem,4vw)] w-12 h-[72px] rounded-[50%] pointer-events-none"
+            style={{
+              background: 'linear-gradient(180deg, #ffe5ec 0%, #ffc8dd 100%)',
+              transform: 'rotate(-12deg)',
+              border: '2px solid rgba(255,255,255,0.14)',
+              boxShadow: '0 12px 28px rgba(255,200,221,0.16)',
+            }} />
+          <div className="absolute bottom-24 left-[max(1rem,6vw)] pointer-events-none"
+            style={{
+              fontFamily: 'var(--f-mono)',
+              fontSize: '0.56rem',
+              letterSpacing: '0.2em',
+              color: 'rgba(255,240,245,0.52)',
+              textTransform: 'uppercase',
+            }}>
+            Easter Special
+          </div>
+        </>
+      )}
       <div className="wrap">
         <div className="text-center mb-20">
           <div className="eyebrow justify-center" style={{ justifyContent:'center' }}>
-            <PiTreePalm size={11}/> Coming Soon <PiTreePalm size={11}/>
+            <PiTreePalm size={11}/> Next Edition <PiTreePalm size={11}/>
           </div>
         </div>
 
@@ -766,7 +980,7 @@ function UpcomingEvent({ flyer }: { flyer: string }) {
             <div className="photo-luxury" style={{ position:'relative' }}>
               <div style={{ paddingBottom:'128%', position:'relative', overflow:'hidden' }}>
                 {flyer ? (
-                  <Image src={`/coming-soon/${flyer}`} alt="Link Up Monday flyer" fill className="object-cover"/>
+                  <Image src={`/coming-soon/${flyer}`} alt={`${edition.title} flyer`} fill className="object-cover"/>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center"
                     style={{ background:'var(--bg-raised)' }}>
@@ -784,7 +998,7 @@ function UpcomingEvent({ flyer }: { flyer: string }) {
 
             <div className="absolute -top-4 -right-4 px-5 py-2"
               style={{ background:'var(--g-fire)', fontFamily:'var(--f-sans)', fontWeight:700, fontSize:'0.58rem', letterSpacing:'0.2em', color:'var(--bg-base)', boxShadow:'0 8px 32px rgba(232,93,4,0.4)' }}>
-              COMING SOON
+              NEXT EDITION
             </div>
           </motion.div>
 
@@ -795,20 +1009,23 @@ function UpcomingEvent({ flyer }: { flyer: string }) {
             transition={{ duration:0.9, ease:EX, delay:0.15 }}
           >
             <h2 className="t-section" style={{ color:'var(--cream)', marginBottom:'0.25rem' }}>
-              Link Up
+              {edition.title}
             </h2>
-            <h2 className="t-section-italic t-fire glow-fire" style={{ marginBottom:'0.5rem' }}>
-              Monday
-            </h2>
+            {edition.subtitle && (
+              <h2 className="t-section-italic t-fire glow-fire" style={{ marginBottom:'0.5rem' }}>
+                {edition.subtitle}
+              </h2>
+            )}
             <span className="div-fire" style={{ marginBottom:'3rem' }}/>
 
             <div className="flex flex-col gap-6 mb-12">
               {[
-                { icon:<RiMapPin2Line size={14}/>, label:'Venue', val:'Champions Cottage, FUOYE Phase 1 Road, Oye-Ekiti' },
-                { icon:<PiStarFill size={12}/>, label:'Date', val:'Monday, March 30, 2026' },
-                { icon:<PiMusicNoteFill size={12}/>, label:'Time', val:'9 PM till Sunrise' },
-                { icon:<PiLeafFill size={12}/>, label:'Entry', val:'Walk in Free • Cabana strictly by reservation' },
-                { icon:<PiTreePalm size={12}/>, label:'Line Up', val:'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy' },
+                { icon:<RiMapPin2Line size={14}/>, label:'Venue', val:edition.venue },
+                { icon:<PiStarFill size={12}/>, label:'Date', val:edition.dateLabel },
+                { icon:<PiMusicNoteFill size={12}/>, label:'Time', val:edition.time },
+                { icon:<PiLeafFill size={12}/>, label:'Ticket', val:edition.ticket },
+                { icon:<PiTreePalm size={12}/>, label:'Cabana', val:edition.cabana },
+                { icon:<PiMusicNoteFill size={12}/>, label:'Line Up', val:edition.lineUp },
               ].map(({ icon, label, val }, i) => (
                 <motion.div key={label}
                   initial={{ opacity:0, x:20 }}
@@ -851,6 +1068,7 @@ export default function HomePage() {
   const [images, setImages] = useState<string[]>([])
   const [flyers, setFlyers] = useState<string[]>([])
   const [comingSoonFlyers, setComingSoonFlyers] = useState<string[]>([])
+  const { edition: activeEdition, flyer: activeFlyer, isEasterSeason } = getActiveEdition(comingSoonFlyers)
 
   const done = useCallback(() => { setSplash(false); document.body.style.overflow = 'auto' }, [])
 
@@ -879,7 +1097,7 @@ export default function HomePage() {
             <Hero/>
             <Marquee/>
             <WhyGrooveGarden/>
-            <UpcomingEvent flyer={comingSoonFlyers[0]||''}/>
+            <UpcomingEvent flyer={activeFlyer} edition={activeEdition} isEasterSeason={isEasterSeason}/>
             <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
             <EventsGallery images={images}/>
             <hr style={{ border:'none', height:'1px', background:'linear-gradient(90deg,transparent,rgba(240,235,224,0.07),transparent)' }}/>
