@@ -48,7 +48,7 @@ type Edition = {
   flyerKeyword: string
 }
 
-const APRIL_EDITIONS: Edition[] = [
+const EDITIONS: Edition[] = [
   {
     key: 'easter-bunny',
     title: 'Easter Bunny',
@@ -100,6 +100,18 @@ const APRIL_EDITIONS: Edition[] = [
     lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
     flyerKeyword: 'gta_ groove city',
   },
+  {
+    key: 'groove-a-thon',
+    title: 'Groove-A-Thon',
+    dateKey: '2026-05-11',
+    dateLabel: 'Monday, May 11, 2026',
+    time: '9 PM',
+    venue: 'Champions Cottage, FUOYE Phase 1 Road, Oye-Ekiti',
+    ticket: 'Walk in N1K',
+    cabana: 'Strictly by Reservation',
+    lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
+    flyerKeyword: 'groove-a-thon',
+  },
 ]
 
 function getLagosDateKey() {
@@ -121,8 +133,8 @@ function findFlyerByKeyword(files: string[], keyword: string) {
 function getActiveEdition(files: string[]) {
   const todayKey = getLagosDateKey()
   const activeEdition =
-    APRIL_EDITIONS.find(edition => edition.dateKey >= todayKey) ||
-    APRIL_EDITIONS[APRIL_EDITIONS.length - 1]
+    EDITIONS.find(edition => edition.dateKey >= todayKey) ||
+    EDITIONS[EDITIONS.length - 1]
 
   return {
     edition: activeEdition,
