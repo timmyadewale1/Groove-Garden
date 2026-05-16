@@ -112,6 +112,19 @@ const EDITIONS: Edition[] = [
     lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
     flyerKeyword: 'groove-a-thon',
   },
+  {
+    key: 'gender-switch',
+    title: 'Gender Switch',
+    subtitle: 'Monday',
+    dateKey: '2026-05-18',
+    dateLabel: 'Monday, May 18, 2026',
+    time: '9 PM till Sunrise',
+    venue: 'Champions Cottage, FUOYE Phase 1 Road, Dye-Ekiti',
+    ticket: 'Walk in Free',
+    cabana: 'Strictly by Reservation',
+    lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
+    flyerKeyword: 'gender switch',
+  },
 ]
 
 function getLagosDateKey() {
