@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FiArrowRight, FiArrowUpRight } from 'react-icons/fi'
 import { RiInstagramLine, RiTwitterXLine, RiTiktokLine, RiYoutubeLine } from 'react-icons/ri'
 import { PiTreePalm, PiMusicNoteFill } from 'react-icons/pi'
+import { Analytics } from '@vercel/analytics/react'
 
 const EX = { ease: [0.19, 1, 0.22, 1], duration: 0.7 } as const
 
@@ -318,6 +319,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main>{children}</main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   )
