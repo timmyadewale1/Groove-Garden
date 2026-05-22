@@ -125,6 +125,19 @@ const EDITIONS: Edition[] = [
     lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
     flyerKeyword: 'gender switch',
   },
+  {
+    key: 'gelato-monday',
+    title: 'Gelato',
+    subtitle: 'Monday',
+    dateKey: '2026-05-25',
+    dateLabel: 'Monday, May 25, 2026',
+    time: '9 PM till Sunrise',
+    venue: 'Champions Cottage, FUOYE Phase 1 Road, Dye-Ekiti',
+    ticket: 'Walk in Free',
+    cabana: 'Strictly by Reservation',
+    lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
+    flyerKeyword: 'gelato',
+  },
 ]
 
 function getLagosDateKey() {
