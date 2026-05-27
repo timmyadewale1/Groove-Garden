@@ -138,6 +138,19 @@ const EDITIONS: Edition[] = [
     lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
     flyerKeyword: 'gelato',
   },
+  {
+    key: 'After the Storm 2.0',
+    title: 'After the storm',
+    subtitle: 'Monday',
+    dateKey: '2026-06-01',
+    dateLabel: 'Monday, June 01, 2026',
+    time: '9 PM till Sunrise',
+    venue: 'Champions Cottage, FUOYE Phase 1 Road, Dye-Ekiti',
+    ticket: 'Walk in Free',
+    cabana: 'Strictly by Reservation',
+    lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
+    flyerKeyword: 'After the Storm',
+  },
 ]
 
 function getLagosDateKey() {
