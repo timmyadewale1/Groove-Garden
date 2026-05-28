@@ -149,7 +149,7 @@ const EDITIONS: Edition[] = [
     ticket: 'Walk in Free',
     cabana: 'Strictly by Reservation',
     lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
-    flyerKeyword: 'After the Storm',
+    flyerKeyword: 'After the Storm 2.0',
   },
 ]
 
