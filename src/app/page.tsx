@@ -140,8 +140,8 @@ const EDITIONS: Edition[] = [
   },
   {
     key: 'After the Storm 2.0',
-    title: 'After the Storm 2.0',
-    subtitle: 'Monday',
+    title: 'After the Storm',
+    subtitle: '2.0',
     dateKey: '2026-06-01',
     dateLabel: 'Monday, June 01, 2026',
     time: '9 PM till Sunrise',
