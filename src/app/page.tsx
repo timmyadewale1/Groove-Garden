@@ -151,6 +151,19 @@ const EDITIONS: Edition[] = [
     lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
     flyerKeyword: 'after the storm',
   },
+  {
+    key: 'Cooperate Monday',
+    title: 'Cooperate Monday',
+    subtitle: 'Monday',
+    dateKey: '2026-06-08',
+    dateLabel: 'Monday, June 08, 2026',
+    time: '9 PM till Sunrise',
+    venue: 'Champions Cottage, FUOYE Phase 1 Road, Oye-Ekiti',
+    ticket: 'Walk in #1,000',
+    cabana: 'Strictly by Reservation',
+    lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
+    flyerKeyword: 'cooperate monday',
+  },
 ]
 
 function getLagosDateKey() {
