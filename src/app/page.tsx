@@ -164,6 +164,19 @@ const EDITIONS: Edition[] = [
     lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy',
     flyerKeyword: 'cooperate monday',
   },
+  {
+    key: 'Pens Down, Bottles Up',
+    title: 'Pens Down, Bottles Up',
+    subtitle: 'Monday',
+    dateKey: '2026-06-29',
+    dateLabel: 'Monday, June 29, 2026',
+    time: '9 PM till Sunrise',
+    venue: 'Champions Cottage, FUOYE Phase 1 Road, Oye-Ekiti',
+    ticket: 'Walk in Free',
+    cabana: 'Strictly by Reservation',
+    lineUp: 'Avatar, Sammie Kiss, DJ Shegszy, DJ Fletzy, DJ Virtual',
+    flyerKeyword: 'pens down, bottles up',
+  },
 ]
 
 function getLagosDateKey() {
